@@ -22,6 +22,10 @@ ATTENTION!!!
 #define COMONE 2882
 #define COMTWO 3773
 
+#define AIKO 111
+#define ONEWINNER 222
+#define TWOWINNER 333
+
 int janken_two_people(int player1, int player2);
 int janken_three_people();
 
@@ -89,21 +93,19 @@ int main(void){
     printf("tmp2 : %d\n", tmp2);
     #endif
 
-    // 実際のじゃんけん。あとでメソッドに分離
-    int result = (numPlayerHand + comOne + comTwo) % 3;
-    if (result == 0) {
-        printf("あいこ\n");
-        break;
-    } else if (result == 1) {
-        printf("まだ書いてないよ\n");
+    // ここでワイルドカードの処理をする
+
+    int result = janken_three_people();
+    // 3人じゃんけんの結果を返す
+    if (result == AIKO) {
+        printf("AIKO\n");
+    } else if (result == ONEWINNER) {
+        printf("ONE WINNER\n");
+    } else if (result == TWOWINNER) {
+        printf("TWO WINNER\n");
     } else {
-        if (comOne == comTwo) {
-            printf("1位 Player, 2位 com1, 2位 com2\n");
-        } else if (comOne == numPlayerHand) {
-            printf("1位 com2, 2位 Player, 2位 com1\n");
-        } else {
-            printf("1位 com1, 2位 Player, 2位 com2\n");
-        }
+        printf("IlligalState\n");
+        break;
     }
 
   }
@@ -113,7 +115,22 @@ int main(void){
 
 // ３人でじゃんけんをする時に呼ばれるメソッド
 int janken_three_people(){
+    #ifdef DEBUG
+    printf("*************** ここはjanken_three_peopleのなか **********\n");
+    printf("com1:%d\n", comOne);
+    printf("com2:%d\n", comTwo);
+    printf("numPlayerHand : %d\n", numPlayerHand);
+    printf("*************************\n");
+    #endif
 
+    int result = (numPlayerHand + comOne + comTwo) % 3;
+    if (result == 0) {
+        return AIKO;
+    } else if (result == 1) {
+        return ONEWINNER;
+    } else {
+        return TWOWINNER;
+    }
 }
 
 int janken_two_people(int player1, int player2){
