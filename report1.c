@@ -12,6 +12,8 @@ ATTENTION!!!
 
 #define DEBUG
 
+#define PLAYERCOUNT 3
+
 // 初期値0と混同することを回避
 #define ROCK 1
 #define PAPER 2
@@ -26,8 +28,10 @@ ATTENTION!!!
 #define ONEWINNER 222
 #define TWOWINNER 333
 
+// メソッド宣言
 int janken_two_people(int player1, int player2);
 int janken_three_people();
+int checkWildCard(int handOne, int handTwo, int handThree);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -94,14 +98,25 @@ int main(void){
     #endif
 
     // ここでワイルドカードの処理をする
+    int resultWild = checkWildCard(numPlayerHand, comOne, comTwo);
+    if (resultWild == 2) {
+        // 複数人のワイルドカードが出たら、あいこと同じ扱い。
+        // whileを抜ける
+        break;
+    }
 
-    int result = janken_three_people();
+    #ifdef DEBUG
+    printf("WILD COUNT : %d\n", resultWild);
+    #endif
+
+    int resultThree = janken_three_people();
     // 3人じゃんけんの結果を返す
-    if (result == AIKO) {
+    if (resultThree == AIKO) {
         printf("AIKO\n");
-    } else if (result == ONEWINNER) {
+        break;
+    } else if (resultThree == ONEWINNER) {
         printf("ONE WINNER\n");
-    } else if (result == TWOWINNER) {
+    } else if (resultThree == TWOWINNER) {
         printf("TWO WINNER\n");
     } else {
         printf("IlligalState\n");
@@ -114,6 +129,9 @@ int main(void){
 }
 
 // ３人でじゃんけんをする時に呼ばれるメソッド
+// じゃんけんの結果を返す。
+// return AIKO, ONEWINNER, TWOWINNER
+// ただし、どのプレイヤが買ったのか判定できない
 int janken_three_people(){
     #ifdef DEBUG
     printf("*************** ここはjanken_three_peopleのなか **********\n");
@@ -135,4 +153,24 @@ int janken_three_people(){
 
 int janken_two_people(int player1, int player2){
 
+}
+
+// プレイヤーの手にあるワイルドカードの枚数をチェックする
+// Wildカードがない場合は0を、一枚だけある場合は1を、複数人の場合は2を返す
+int checkWildCard(int handOne, int handTwo, int handThree){
+    int array[PLAYERCOUNT] = {handOne, handTwo, handThree};
+
+    int i;
+    int total = 0;
+    for(i = 0; i < PLAYERCOUNT; i++){
+        if (array[i] == 4) {
+            total++;
+        }
+    }
+
+    if (total == PLAYERCOUNT) {
+        return 2;
+    }else {
+        return total;
+    }
 }
