@@ -1,3 +1,10 @@
+/*
+ATTENTION!!!
+このプログラムはメルセンヌ・ツイスタを使用しています。
+かならずディレクトリ内にMT.hを含めてください
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -15,8 +22,8 @@
 #define COMONE 2882
 #define COMTWO 3773
 
-int jankenTwoPeople(int player1, int player2);
-int jankenThreePeople();
+int janken_two_people(int player1, int player2);
+int janken_three_people();
 
 int main(void){
 
@@ -38,15 +45,6 @@ int main(void){
   const int codePlayer = PLAYER;
 
   while(1){
-    // コンピュータの手をランダムに出力
-    // シード値の作成
-    init_genrand((unsigned)time(NULL));
-    int comOne = 0;
-    comOne = genrand_int32()%4 + 1;
-
-    init_genrand((unsigned)time(NULL));
-    int comTwo = 0;
-    comTwo = genrand_int32()%4 + 1;
 
     printf("You throw >> ");
     // 入力された手を格納しておく変数 char型
@@ -69,6 +67,15 @@ int main(void){
         printf("Press c g p w\n");
         continue;
     }
+    // コンピュータの手をランダムに出力
+    // シード値の作成
+    init_genrand((unsigned)time(NULL));
+    int comOne = 0;
+    comOne = genrand_int32()%4 + 1;
+
+    init_genrand((unsigned)time(NULL));
+    int comTwo = 0;
+    comTwo = genrand_int32()%4 + 1;
 
     #ifdef DEBUG
     printf("com1:%d\n", comOne);
@@ -80,6 +87,7 @@ int main(void){
     printf("tmp2 : %d\n", tmp2);
     #endif
 
+    // 実際のじゃんけん。あとでメソッドに分離
     int result = (numYourHand + comOne + comTwo) % 3;
     if (result == 0) {
         printf("あいこ\n");
@@ -102,10 +110,10 @@ int main(void){
 }
 
 // ３人でじゃんけんをする時に呼ばれるメソッド
-int jankenThreePeople(){
+int janken_three_people(){
 
 }
 
-int jankenTwoPeople(int player1, int player2){
+int janken_two_people(int player1, int player2){
 
 }
