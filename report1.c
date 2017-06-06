@@ -1,15 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "MT.h"
 
 #define DEBUG
 
+// 初期値0と混同することを回避
 #define ROCK 1
 #define PAPER 2
 #define SCISSORS 3
 #define WILD 4
 
-int janken(int x[]);
+#define PLAYER 1991
+#define COMONE 2882
+#define COMTWO 3773
+
+int jankenTwoPeople(int player1, int player2);
+int jankenThreePeople();
 
 int main(void){
 
@@ -24,22 +31,22 @@ int main(void){
   printf("*****************************************************\n");
   printf("\n");
 
+// プレイヤーコードを格納する。各プレイヤーコードをじゃんけん用のメソッドに渡して
+// プレイヤーを識別する
+  const int codeComOne = COMONE;
+  const int codeComTwo = COMTWO;
+  const int codePlayer = PLAYER;
+
   while(1){
-
     // コンピュータの手をランダムに出力
-    srand((unsigned)time(NULL));
-    int com1 = 0;
-    com1 = rand()%4 + 1;
+    // シード値の作成
+    init_genrand((unsigned)time(NULL));
+    int comOne = 0;
+    comOne = genrand_int32()%4 + 1;
 
-    int com2 = 0;
-    com2 = rand()%4 + 1;
-
-    #ifdef DEBUG
-    printf("com1:%d\n", com1);
-    printf("com2:%d\n", com2);
-    // com1 = 1;
-    // com2 = 2;
-    #endif
+    init_genrand((unsigned)time(NULL));
+    int comTwo = 0;
+    comTwo = genrand_int32()%4 + 1;
 
     printf("You throw >> ");
     // 入力された手を格納しておく変数 char型
@@ -63,22 +70,26 @@ int main(void){
         continue;
     }
 
+    #ifdef DEBUG
+    printf("com1:%d\n", comOne);
+    printf("com2:%d\n", comTwo);
     printf("numYourHand : %d\n", numYourHand);
-    int arrayHand[3] = {numYourHand, com1, com2};
-    // janken(arrayHand);
 
-    // printf("これ以降の処理\n");
+    int tmp1 = numYourHand + comOne;
+    int tmp2 = tmp1 + comTwo;
+    printf("tmp2 : %d\n", tmp2);
+    #endif
 
-    int result = (numYourHand + com1 + com2) % 3;
+    int result = (numYourHand + comOne + comTwo) % 3;
     if (result == 0) {
         printf("あいこ\n");
         break;
     } else if (result == 1) {
         printf("まだ書いてないよ\n");
     } else {
-        if (com1 == com2) {
+        if (comOne == comTwo) {
             printf("1位 Player, 2位 com1, 2位 com2\n");
-        } else if (com1 == numYourHand) {
+        } else if (comOne == numYourHand) {
             printf("1位 com2, 2位 Player, 2位 com1\n");
         } else {
             printf("1位 com1, 2位 Player, 2位 com2\n");
@@ -90,7 +101,11 @@ int main(void){
   return (0);
 }
 
-int janken(int x[]){
-    int size = sizeof(x);
-    printf("size : %d\n", size);
+// ３人でじゃんけんをする時に呼ばれるメソッド
+int jankenThreePeople(){
+
+}
+
+int jankenTwoPeople(int player1, int player2){
+
 }
