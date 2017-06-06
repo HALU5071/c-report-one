@@ -25,6 +25,12 @@ ATTENTION!!!
 int janken_two_people(int player1, int player2);
 int janken_three_people();
 
+// コンピュータ1, 2の手を格納するためのグローバル変数
+int comOne = 0;
+int comTwo = 0;
+// Playerの手を格納するためのグローバル変数
+int numPlayerHand = 0;
+
 int main(void){
 
   printf("\n");
@@ -54,15 +60,14 @@ int main(void){
 
     // 入力された手を数字に変換しておくための変数
     // ここで正しい手を入力したかチェック
-    int numYourHand = 0;
     if (yourHand == 'c') {
-        numYourHand = SCISSORS;
+        numPlayerHand = SCISSORS;
     } else if (yourHand == 'g') {
-        numYourHand = ROCK;
+        numPlayerHand = ROCK;
     } else if (yourHand == 'p') {
-        numYourHand = PAPER;
+        numPlayerHand = PAPER;
     } else if (yourHand == 'w') {
-        numYourHand = WILD;
+        numPlayerHand = WILD;
     } else {
         printf("Press c g p w\n");
         continue;
@@ -70,25 +75,22 @@ int main(void){
     // コンピュータの手をランダムに出力
     // シード値の作成
     init_genrand((unsigned)time(NULL));
-    int comOne = 0;
     comOne = genrand_int32()%4 + 1;
 
-    init_genrand((unsigned)time(NULL));
-    int comTwo = 0;
+    init_genrand((unsigned)time(NULL) + 100);
     comTwo = genrand_int32()%4 + 1;
 
     #ifdef DEBUG
     printf("com1:%d\n", comOne);
     printf("com2:%d\n", comTwo);
-    printf("numYourHand : %d\n", numYourHand);
+    printf("numPlayerHand : %d\n", numPlayerHand);
 
-    int tmp1 = numYourHand + comOne;
-    int tmp2 = tmp1 + comTwo;
+    int tmp2 = numPlayerHand + comOne + comTwo;
     printf("tmp2 : %d\n", tmp2);
     #endif
 
     // 実際のじゃんけん。あとでメソッドに分離
-    int result = (numYourHand + comOne + comTwo) % 3;
+    int result = (numPlayerHand + comOne + comTwo) % 3;
     if (result == 0) {
         printf("あいこ\n");
         break;
@@ -97,7 +99,7 @@ int main(void){
     } else {
         if (comOne == comTwo) {
             printf("1位 Player, 2位 com1, 2位 com2\n");
-        } else if (comOne == numYourHand) {
+        } else if (comOne == numPlayerHand) {
             printf("1位 com2, 2位 Player, 2位 com1\n");
         } else {
             printf("1位 com1, 2位 Player, 2位 com2\n");
