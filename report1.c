@@ -39,6 +39,9 @@ int comTwo = 0;
 // Playerの手を格納するためのグローバル変数
 int numPlayerHand = 0;
 
+// 勝利順を格納するためのグローバル配列
+int winnerArray[PLAYERCOUNT];
+
 int main(void){
 
   printf("\n");
@@ -103,6 +106,9 @@ int main(void){
         // 複数人のワイルドカードが出たら、あいこと同じ扱い。
         // whileを抜ける
         break;
+    }else if (resultWild == 1) {
+        // 一人勝ちのパターン。一人の勝利が確定
+        // 二人のみのじゃんけんに移行
     }
 
     #ifdef DEBUG
@@ -116,12 +122,19 @@ int main(void){
         break;
     } else if (resultThree == ONEWINNER) {
         printf("ONE WINNER\n");
+        // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
     } else if (resultThree == TWOWINNER) {
         printf("TWO WINNER\n");
+        // ここで敗者をwinnerArray[2]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
     } else {
         printf("IlligalState\n");
         break;
     }
+
+    #ifdef DEBUG
+    int resultTwo = janken_two_people(codePlayer, codeComTwo);
+    printf("resultTwo: %d\n", resultTwo);
+    #endif
 
   }
 
@@ -133,13 +146,6 @@ int main(void){
 // return AIKO, ONEWINNER, TWOWINNER
 // ただし、どのプレイヤが買ったのか判定できない
 int janken_three_people(){
-    #ifdef DEBUG
-    printf("*************** ここはjanken_three_peopleのなか **********\n");
-    printf("com1:%d\n", comOne);
-    printf("com2:%d\n", comTwo);
-    printf("numPlayerHand : %d\n", numPlayerHand);
-    printf("*************************\n");
-    #endif
 
     int result = (numPlayerHand + comOne + comTwo) % 3;
     if (result == 0) {
@@ -151,8 +157,45 @@ int janken_three_people(){
     }
 }
 
-int janken_two_people(int player1, int player2){
+int janken_two_people(int playerCode1, int playerCode2){
+    int code1 = playerCode1;
+    int code2 = playerCode2;
+    int handOne = 0;
+    int handTwo = 0;
 
+    // 要改善
+    // player1, player2からもらってきたプレイヤーコードから、
+    // それぞれのプレイやーの手を格納していく
+    if (code1 == COMONE) {
+        handOne = comOne;
+    } else if (code1 == COMTWO) {
+        handOne = comTwo;
+    } else {
+        handOne = numPlayerHand;
+    }
+
+    if (code2 == COMONE) {
+        handTwo = comOne;
+    } else if (code2 == COMTWO) {
+        handTwo = comTwo;
+    } else  {
+        handTwo = numPlayerHand;
+    }
+
+    // ここから実際のじゃんけんを行う
+    if (handTwo == handOne) {
+        return AIKO;
+    }
+
+    if (handOne == SCISSORS && handTwo == ROCK) {
+        return code2;
+    } else if (handOne == ROCK && handTwo == SCISSORS) {
+        return code1;
+    }else if (handOne < handTwo) {
+        return code2;
+    } else {
+        return code1;
+    }
 }
 
 // プレイヤーの手にあるワイルドカードの枚数をチェックする
