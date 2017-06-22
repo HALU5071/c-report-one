@@ -55,6 +55,7 @@ int autoJanken();
 int searchDifferentHand(int data[3][3]);
 void createLastPlayerArray(int data[2], int differentHand);
 int determinJankenTwo(int data[2]);
+int manualJankenWithComputer(int comCode);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -235,18 +236,22 @@ int main(void){
 // 残っている二人がコンピュータなら、autoJanken()を呼び出し、自動的にじゃんけんをおこないます。
 int determinJankenTwo(int data[2]){
     int j;
+    int position = 0;
     int flag = 0;
     for(j = 0; j < 2; j++){
         if (data[j] == PLAYER) {
             flag = 1;
-            break;
+        } else {
+            position = j;
         }
     }
 
     if (flag == 0) {
         int result = autoJanken();
     } else if (flag == 1) {
-        showDummyCode();
+        printf("data[position]: %d\n", data[position]);
+        int code = data[position];
+        manualJankenWithComputer(code);
     } else {
         printf("IllegalState\n");
     }
@@ -315,6 +320,7 @@ int jankenThreePeople(int data[3]){
 int jankenTwoPeople(int playerCode1, int playerCode2, int data[3], int playerData[3][3]){
     int i;
     int position;
+    int code2 = playerCode2;
     // ここで、winnerArrayのどこが埋まっているのか判定する。
     for(i = 0; i < PLAYERCOUNT; i++){
         if (data[i] != 0) {
@@ -323,16 +329,28 @@ int jankenTwoPeople(int playerCode1, int playerCode2, int data[3], int playerDat
         }
     }
 
+    int code1 = playerCode1;
+    printf("second: %d\n", playerCode2);
+    printf("third: %d\n", code2);
+
     int handOne = 0;
     int handTwo = 0;
     int j;
     for (j = 0; j < PLAYERCOUNT; j++) {
         if (playerData[j][0] == playerCode1) {
             handOne = playerData[j][1];
+
+            #ifdef DEBUG
+                printf("jankenTwoPeople: %d: %d\n", playerCode1, handOne);
+            #endif
         }
 
         if (playerData[j][0] == playerCode2) {
             handTwo = playerData[j][1];
+
+            #ifdef DEBUG
+                printf("jankenTwoPeople: %d: %d\n", playerCode2, handTwo);
+            #endif
         }
     }
 
@@ -491,6 +509,34 @@ int checkWildCard(int handOne, int handTwo, int handThree){
     }else {
         return total;
     }
+}
+
+int manualJankenWithComputer(int comCode){
+    int code = 0;
+    code = comCode;
+    printf("%d\n", code);
+
+    while (1) {
+        printf("You throw >> ");
+        char yourHand = '\0';
+        scanf("%s", &yourHand);
+        int numPlayerHand = convertPlayerHand(yourHand);
+
+        if (numPlayerHand == '\0') {
+            continue;
+        }
+
+        printf("first: %d\n", code);
+        // プレイヤーの手を格納
+        playersArray[0][1] = numPlayerHand;
+        int result = jankenTwoPeople(playersArray[0][0], code, winnerArray, playersArray);
+
+        if (result == 0) {
+            break;
+        }
+    }
+
+    return 1;
 }
 
 // コンピュータ二人で行うじゃんけんを自動化するメソッドです。
