@@ -32,8 +32,8 @@ ATTENTION!!!
 #define WILDTRUE 1
 
 // メソッド宣言
-int janken_two_people(int player1, int player2, int data[3], int playerData[3][3]);
-int janken_three_people(int data[3]);
+int jankenTwoPeople(int player1, int player2, int data[3], int playerData[3][3]);
+int jankenThreePeople(int data[3]);
 int checkWildCard(int handOne, int handTwo, int handThree);
 void showResult();
 int showHandFromPlayer(int code);
@@ -44,6 +44,7 @@ void showAIKO();
 void showMultipleWildCard();
 void showOneWinner();
 void showTwoWinner();
+int generateJankenHand(int seed);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -54,7 +55,7 @@ int numPlayerHand = 0;
 // 勝利順を格納するためのグローバル配列
 int winnerArray[PLAYERCOUNT];
 
-// プレイヤーコードと、出した手を管理する配列
+// プレイヤーコードと、出した手、ワイルドカードを管理する配列
 // playersArray[0][??] : player
 // playersArray[1][??] ; comOne
 // playersArray[2][??] : comTwo
@@ -111,12 +112,10 @@ int main(void){
 
         // コンピュータの手をランダムに出力
         // シード値の作成
-        init_genrand((unsigned)time(NULL));
-        comOne = genrand_int32()%4 + 1;
+        comOne = generateJankenHand(0);
         playersArray[1][1] = comOne;
 
-        init_genrand((unsigned)time(NULL) + 100);
-        comTwo = genrand_int32()%4 + 1;
+        comTwo = generateJankenHand(100);
         playersArray[2][1] = comTwo;
 
         #ifdef DEBUG
@@ -171,14 +170,16 @@ int main(void){
                 }
                 printf("ワイルドカードは一人\n");
             #endif
-            /*
-            while(true){
-            int result = janken_two_people(whoLoseArray[0], whoLoseArray[1], winnerArray, playersArray);
-            if (result == 0) {
-            break;
-        }
-    }
-    */
+
+            while(1){
+                int resultCode = jankenTwoPeople(whoLoseArray[0], whoLoseArray[1], winnerArray, playersArray);
+                if (resultCode == 0) {
+                    break;
+                } else {
+                    // 勝敗がつかなかったので、改めて手を生成する
+                }
+            }
+
 
         } else {
             // ワイルドカードが一枚もなかった場合
@@ -187,7 +188,7 @@ int main(void){
                 showWinnerArray();
             #endif
 
-            int resultThree = janken_three_people(winnerArray);
+            int resultThree = jankenThreePeople(winnerArray);
             // 3人じゃんけんの結果を返す
 
             if (resultThree == AIKO) {
@@ -232,7 +233,7 @@ void showResult(){
 // じゃんけんの結果を返す。
 // return AIKO, ONEWINNER, TWOWINNER
 // ただし、どのプレイヤが買ったのか判定できない
-int janken_three_people(int data[3]){
+int jankenThreePeople(int data[3]){
 
     int result = (numPlayerHand + comOne + comTwo) % 3;
     if (result == 0) {
@@ -245,7 +246,7 @@ int janken_three_people(int data[3]){
 }
 
 // プレイヤーコードを元に、二人でじゃんけんを行います
-int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerData[3][3]){
+int jankenTwoPeople(int playerCode1, int playerCode2, int data[3], int playerData[3][3]){
     int i;
     int position;
     // ここで、winnerArrayのどこが埋まっているのか判定する。
@@ -275,7 +276,7 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerD
     }
 
     if (handOne == SCISSORS && handTwo == ROCK) {
-        if (position 1) {
+        if (position == 1) {
             winnerArray[1] = playerCode2;
             winnerArray[2] = playerCode1;
         } else {
@@ -283,7 +284,7 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerD
             winnerArray[2] = playerCode2;
         }
     } else if (handOne == ROCK && handTwo == SCISSORS) {
-        if (position 1) {
+        if (position == 1) {
             winnerArray[1] = playerCode1;
             winnerArray[2] = playerCode2;
         } else {
@@ -291,7 +292,7 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerD
             winnerArray[2] = playerCode1;
         }
     }else if (handOne < handTwo) {
-        if (position 1) {
+        if (position == 1) {
             winnerArray[1] = playerCode2;
             winnerArray[2] = playerCode1;
         } else {
@@ -299,7 +300,7 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerD
             winnerArray[2] = playerCode2;
         }
     } else {
-        if (position 1) {
+        if (position == 1) {
             winnerArray[1] = playerCode1;
             winnerArray[2] = playerCode2;
         } else {
@@ -309,6 +310,14 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerD
     }
 
     return 0;
+}
+
+int generateJankenHand(int seed){
+    int hand = 0;
+    init_genrand((unsigned)time(NULL) + seed);
+    hand = genrand_int32()%4 + 1;
+
+    return hand;
 }
 
 // ワイルドカードを使ってしまった人を記録します
