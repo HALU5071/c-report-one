@@ -45,11 +45,13 @@ void showMultipleWildCard();
 void showOneWinner();
 void showTwoWinner();
 void showDummyCode();
-int generateJankenHand(int seed);
+int generateJankenHandTo4(int seed);
+int generateJankenHandTo3(int seed);
 int convertPlayerHand(char a);
 void autoJanken();
 int searchDifferentHand(int data[3][3]);
 void createLastPlayerArray(int data[2], int differentHand);
+int determinJankenTwo(int data[2]);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -109,10 +111,10 @@ int main(void){
 
         // コンピュータの手をランダムに出力
         // シード値の作成
-        comOne = generateJankenHand(0);
+        comOne = generateJankenHandTo4(0);
         playersArray[1][1] = comOne;
 
-        comTwo = generateJankenHand(100);
+        comTwo = generateJankenHandTo4(100);
         playersArray[2][1] = comTwo;
 
         #ifdef DEBUG
@@ -143,7 +145,7 @@ int main(void){
         }else if (resultWild == 1) {
             // 一人勝ちのパターン。一人の勝利が確定
             // 二人のみのじゃんけんに移行
-            int whoLoseArray[2];
+            int lastArray[2];
             int loseCounter = 0;
             int t;
             for(t = 0; t < 3; t++){
@@ -151,7 +153,7 @@ int main(void){
                     winnerArray[0] = playersArray[t][0];
                     playersArray[t][2] = WILDTRUE;
                 } else {
-                    whoLoseArray[loseCounter] = playersArray[t][0];
+                    lastArray[loseCounter] = playersArray[t][0];
                     loseCounter = 1;
                 }
             }
@@ -159,24 +161,13 @@ int main(void){
             #ifdef DEBUG
                 int o;
                 for(o = 0; o < 2; o++){
-                    printf("Who Lose: %d\n", whoLoseArray[o]);
+                    printf("Who Lose: %d\n", lastArray[o]);
                 }
                 showWinnerArray();
                 printf("ワイルドカードは一人\n");
             #endif
 
-            int j;
-            int flag = 0;
-            for(j = 0; j < 2; j++){
-                if (whoLoseArray[j] == PLAYER) {
-                    flag = 1;
-                    break;
-                }
-            }
-
-            if (flag == 0) {
-                autoJanken();
-            }
+            determinJankenTwo(lastArray);
 
 
         } else {
@@ -203,12 +194,18 @@ int main(void){
                 #endif
 
                 createLastPlayerArray(lastArray, diffHand);
+                showWinnerArray();
+                determinJankenTwo(lastArray);
+
             } else if (resultThree == TWOWINNER) {
                 showTwoWinner();
                 int diffHand = searchDifferentHand(playersArray);
                 // ここで敗者をwinnerArray[2]に入れて、のこり二人をjankenThreePeople()でじゃんけんさせる
                 winnerArray[2] = diffHand;
                 createLastPlayerArray(lastArray, diffHand);
+                showWinnerArray();
+                // ふたりじゃんけんの方針を決定します。
+                determinJankenTwo(lastArray);
 
                 #ifdef DEBUG
                     printf("Diff: %d\n", diffHand);
@@ -226,7 +223,26 @@ int main(void){
     return (0);
 }
 
-// 3つのなかで、違う手であるもののプレイヤーコードを返します
+// ふたりのじゃんけんをどのように行うのかを決定します。
+// 残っている二人にプレイヤー自身が含まれているなら、入力を元にするじゃんけん
+// 残っている二人がコンピュータなら、autoJanken()を呼び出し、自動的にじゃんけんをおこないます。
+int determinJankenTwo(int data[2]){
+    int j;
+    int flag = 0;
+    for(j = 0; j < 2; j++){
+        if (data[j] == PLAYER) {
+            flag = 1;
+            break;
+        }
+    }
+
+    if (flag == 0) {
+        autoJanken();
+    }
+
+}
+
+// 3つのなかで、違う手であるプレイヤーコードを返します
 int searchDifferentHand(int data[3][3]){
     if (playersArray[0][1] == playersArray[1][1]) {
         return playersArray[2][0];
@@ -237,6 +253,7 @@ int searchDifferentHand(int data[3][3]){
     }
 }
 
+// 残りのプレイヤーでじゃんけんをする際に用いる配列を生成します。
 void createLastPlayerArray(int data[2], int differentHand){
     int cursor = 0;
     int t;
@@ -248,6 +265,7 @@ void createLastPlayerArray(int data[2], int differentHand){
     }
 }
 
+// 結果を表示します
 void showResult(){
     printf("*******************************************\n");
     printf("結果は、\n");
@@ -266,9 +284,8 @@ void showResult(){
 }
 
 // ３人でじゃんけんをする時に呼ばれるメソッド
-// じゃんけんの結果を返す。
+// じゃんけんの結果を返します。
 // return AIKO, ONEWINNER, TWOWINNER
-// ただし、どのプレイヤが買ったのか判定できない
 int jankenThreePeople(int data[3]){
 
     int result = (playersArray[0][1] + playersArray[1][1] + playersArray[2][1]) % 3;
@@ -282,6 +299,7 @@ int jankenThreePeople(int data[3]){
 }
 
 // プレイヤーコードを元に、二人でじゃんけんを行います
+// あいこだった場合は 0 を、勝敗がついた場合は 1 を返します
 int jankenTwoPeople(int playerCode1, int playerCode2, int data[3], int playerData[3][3]){
     int i;
     int position;
@@ -370,13 +388,24 @@ int convertPlayerHand(char a){
 
 // 与えられた整数と時間を元に乱数を生成します。
 // 返される値は、1, 2, 3, 4です
-int generateJankenHand(int seed){
+int generateJankenHandTo4(int seed){
     int hand = 0;
     init_genrand((unsigned)time(NULL) + seed);
     hand = genrand_int32()%4 + 1;
 
     return hand;
 }
+
+// 与えられた整数と時間を元に乱数を生成します。
+// 返される値は、1, 2, 3です
+int generateJankenHandTo3(int seed){
+    int hand = 0;
+    init_genrand((unsigned)time(NULL) + seed);
+    hand = genrand_int32()%3 + 1;
+
+    return hand;
+}
+
 
 // ワイルドカードを使ってしまった人を記録します
 void updateWildCardOnPlayersArray(){
@@ -445,10 +474,11 @@ int checkWildCard(int handOne, int handTwo, int handThree){
     }
 }
 
+// コンピュータ二人で行うじゃんけんを自動化するメソッドです。
 void autoJanken(){
     while (1) {
-        playersArray[1][1] = generateJankenHand(199);
-        playersArray[2][2] = generateJankenHand(12);
+        playersArray[1][1] = generateJankenHandTo4(199);
+        playersArray[2][2] = generateJankenHandTo4(12);
 
         int result = jankenTwoPeople(playersArray[1][0], playersArray[2][0], winnerArray, playersArray);
         if (result == 0) {
@@ -461,6 +491,7 @@ void autoJanken(){
     #endif
 }
 
+// ダミー表示を行います。
 void showDummyCode(){
     printf("This is Dummy method\n");
 }
