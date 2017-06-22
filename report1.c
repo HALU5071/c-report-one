@@ -129,6 +129,7 @@ int main(void){
         // ここでワイルドカードの処理をする
         int resultWild = checkWildCard(playersArray[0][1], playersArray[1][1], playersArray[2][1]);
 
+        // ワイルドカードについての情報を更新する
         updateWildCardOnPlayersArray();
 
         #ifdef DEBUG
@@ -137,8 +138,9 @@ int main(void){
 
         if (resultWild == 2) {
             // 複数人のワイルドカードが出たら、あいこと同じ扱い。
-            // whileを抜ける
-            printf("Multipule Wild Card. Again\n");
+            printf("*******************************************\n");
+            printf("***      Multipule Wild Card. Again     ***\n");
+            printf("*******************************************\n");
 
 
         }else if (resultWild == 1) {
@@ -156,16 +158,17 @@ int main(void){
                     loseCounter = 1;
                 }
             }
+
             #ifdef DEBUG
-            int o;
-            for(o = 0; o < 2; o++){
-                printf("Who Lose: %d\n", whoLoseArray[o]);
-            }
-            int i;
-            for (i = 0; i < 3; i++) {
-                printf("winnerArray: %d\n", winnerArray[i]);
-            }
-            printf("ワイルドカードは一人\n");
+                int o;
+                for(o = 0; o < 2; o++){
+                    printf("Who Lose: %d\n", whoLoseArray[o]);
+                }
+                int i;
+                for (i = 0; i < 3; i++) {
+                    printf("winnerArray: %d\n", winnerArray[i]);
+                }
+                printf("ワイルドカードは一人\n");
             #endif
             /*
             while(true){
@@ -176,31 +179,38 @@ int main(void){
     }
     */
 
+        } else {
+            // ワイルドカードが一枚もなかった場合
+            #ifdef DEBUG
+                printf("WILD COUNT : %d\n", resultWild);
+                showWinnerArray();
+            #endif
+
+            int resultThree = janken_three_people(winnerArray);
+            // 3人じゃんけんの結果を返す
+
+            if (resultThree == AIKO) {
+                printf("*******************************************\n");
+                printf("***                AIKO                 ***\n");
+                printf("*******************************************\n");
+            } else if (resultThree == ONEWINNER) {
+                printf("*******************************************\n");
+                printf("***              ONE WINNER             ***\n");
+                printf("*******************************************\n");
+                // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
+            } else if (resultThree == TWOWINNER) {
+                printf("*******************************************\n");
+                printf("***              TWO WINNER             ***\n");
+                printf("*******************************************\n");
+                // ここで敗者をwinnerArray[2]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
+
             } else {
-                // ワイルドカードが一枚もなかった場合
-                #ifdef DEBUG
-                    printf("WILD COUNT : %d\n", resultWild);
-                    showWinnerArray();
-                    #endif
-
-                int resultThree = janken_three_people(winnerArray);
-                // 3人じゃんけんの結果を返す
-
-                if (resultThree == AIKO) {
-                    printf("AIKO\n");
-                } else if (resultThree == ONEWINNER) {
-                    printf("ONE WINNER\n");
-                    // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
-                } else if (resultThree == TWOWINNER) {
-                    printf("TWO WINNER\n");
-                    // ここで敗者をwinnerArray[2]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
-                } else {
-                    printf("IlligalState\n");
-                    break;
-                }
+                printf("IlligalState\n");
+                break;
             }
-
         }
+
+    }
 
     return (0);
 }
