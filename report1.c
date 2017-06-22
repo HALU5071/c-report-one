@@ -35,6 +35,7 @@ ATTENTION!!!
 int janken_two_people(int player1, int player2, int data[3]);
 int janken_three_people(int data[3]);
 int checkWildCard(int handOne, int handTwo, int handThree);
+void showResult();
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -145,6 +146,7 @@ int main(void){
       for(t = 0; t < 3; t++){
         if (playersArray[t][1] == 4) {
           winnerArray[0] = playersArray[t][0];
+          playersArray[t][2] = WILDTRUE;
         } else {
           whoLoseArray[loseCounter] = playersArray[t][0];
           loseCounter = 1;
@@ -160,7 +162,14 @@ int main(void){
         printf("winnerArray: %d\n", winnerArray[i]);
       }
       #endif
-      janken_two_people(whoLoseArray[0], whoLoseArray[1], winnerArray);
+
+      while(true){
+          int result = janken_two_people(whoLoseArray[0], whoLoseArray[1], winnerArray);
+          if (result == 0) {
+            break;
+          }
+      }
+
     } else {
       #ifdef DEBUG
       printf("WILD COUNT : %d\n", resultWild);
@@ -190,6 +199,21 @@ int main(void){
   }
 
   return (0);
+}
+
+void showResult(){
+  printf("結果は、\n", );
+
+  int i;
+  for(i = 0; i < PLAYERCOUNT; i++){
+    if (winnerArray[i] == PLAYER) {
+      printf("%d位: %s\n", i+1, "PLAYER");
+    } else if (winnerArray[i] == COMONE) {
+      printf("%d位: %s\n", i+1, "COM1");
+    } else {
+      printf("%d位: %s\n", i+1, "COM2");
+    }
+  }
 }
 
 // ３人でじゃんけんをする時に呼ばれるメソッド
