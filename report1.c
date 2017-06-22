@@ -29,7 +29,7 @@ ATTENTION!!!
 #define TWOWINNER 333
 
 // メソッド宣言
-int janken_two_people(int player1, int player2);
+int janken_two_people(int player1, int player2, int data[3]);
 int janken_three_people();
 int checkWildCard(int handOne, int handTwo, int handThree);
 
@@ -130,41 +130,39 @@ int main(void){
     }else if (resultWild == 1) {
         // 一人勝ちのパターン。一人の勝利が確定
         // 二人のみのじゃんけんに移行
-        int whoWin = 0;
+        int whoLoseArray[2];
+        int loseCounter = 0;
         int i;
         for(i = 0; i < 3; i++){
           if (playersArray[i][1] == 4) {
             winnerArray[0] = playersArray[i][0];
-            whoWin = playersArray[i][0];
+          } else {
+            whoLoseArray[loseCounter] = playersArray[i][0];
+            loseCounter += 1;
           }
         }
-        janken_two_people();
-    }
-
-    #ifdef DEBUG
-    printf("WILD COUNT : %d\n", resultWild);
-    #endif
-
-    int resultThree = janken_three_people();
-    // 3人じゃんけんの結果を返す
-    if (resultThree == AIKO) {
-        printf("AIKO\n");
-        break;
-    } else if (resultThree == ONEWINNER) {
-        printf("ONE WINNER\n");
-        // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
-    } else if (resultThree == TWOWINNER) {
-        printf("TWO WINNER\n");
-        // ここで敗者をwinnerArray[2]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
+        janken_two_people(whoLoseArray[0], whoLoseArray[1], winnerArray);
     } else {
-        printf("IlligalState\n");
-        break;
-    }
+      #ifdef DEBUG
+      printf("WILD COUNT : %d\n", resultWild);
+      #endif
 
-    #ifdef DEBUG
-    int resultTwo = janken_two_people(PLAYER, COMTWO);
-    printf("resultTwo: %d\n", resultTwo);
-    #endif
+      int resultThree = janken_three_people();
+      // 3人じゃんけんの結果を返す
+      if (resultThree == AIKO) {
+          printf("AIKO\n");
+          break;
+      } else if (resultThree == ONEWINNER) {
+          printf("ONE WINNER\n");
+          // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
+      } else if (resultThree == TWOWINNER) {
+          printf("TWO WINNER\n");
+          // ここで敗者をwinnerArray[2]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
+      } else {
+          printf("IlligalState\n");
+          break;
+      }
+    }
 
   }
 
@@ -187,7 +185,7 @@ int janken_three_people(){
     }
 }
 
-int janken_two_people(int playerCode1, int playerCode2, int data[2]){
+int janken_two_people(int playerCode1, int playerCode2, int data[3]){
     int code1 = playerCode1;
     int code2 = playerCode2;
     int handOne = 0;
@@ -218,6 +216,7 @@ int janken_two_people(int playerCode1, int playerCode2, int data[2]){
     }
 
     if (handOne == SCISSORS && handTwo == ROCK) {
+        winnerArray
         return code2;
     } else if (handOne == ROCK && handTwo == SCISSORS) {
         return code1;
