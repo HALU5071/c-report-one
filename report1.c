@@ -42,6 +42,12 @@ int numPlayerHand = 0;
 // 勝利順を格納するためのグローバル配列
 int winnerArray[PLAYERCOUNT];
 
+// プレイヤーコードと、出した手を管理する配列
+// playersArray[0][??] : player
+// playersArray[1][??] ; comOne
+// playersArray[2][??] : comTwo
+int playersArray[2][3];
+
 int main(void){
 
   printf("\n");
@@ -55,11 +61,10 @@ int main(void){
   printf("*****************************************************\n");
   printf("\n");
 
-// プレイヤーコードを格納する。各プレイヤーコードをじゃんけん用のメソッドに渡して
-// プレイヤーを識別する
-  const int codeComOne = COMONE;
-  const int codeComTwo = COMTWO;
-  const int codePlayer = PLAYER;
+// プレイヤーコードを全て入力
+  playersArray[0][0] = PLAYER;
+  playersArray[1][0] = COMONE;
+  playersArray[2][0] = COMTWO;
 
   while(1){
 
