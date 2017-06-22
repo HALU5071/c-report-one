@@ -2,7 +2,6 @@
 ATTENTION!!!
 このプログラムはメルセンヌ・ツイスタを使用しています。
 かならずディレクトリ内にMT.hを含めてください
-
 */
 
 #include <stdio.h>
@@ -32,6 +31,7 @@ ATTENTION!!!
 int janken_two_people(int player1, int player2);
 int janken_three_people();
 int checkWildCard(int handOne, int handTwo, int handThree);
+void showResult();
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -41,6 +41,10 @@ int numPlayerHand = 0;
 
 // 勝利順を格納するためのグローバル配列
 int winnerArray[PLAYERCOUNT];
+// 上の配列に入れる文字列を３つ用意しておく
+const char playerName[8] = "Player";
+const char computerOneName[16] = "Computer 1";
+const char computerTwoName[16] = "Computer 2";
 
 int main(void){
 
@@ -106,22 +110,26 @@ int main(void){
         // 複数人のワイルドカードが出たら、あいこと同じ扱い。
         // whileを抜ける
         break;
-    }else if (resultWild == 1) {
+    } else if (resultWild == 1) {
         // 一人勝ちのパターン。一人の勝利が確定
         // 二人のみのじゃんけんに移行
+        int wildPlayerCode = whoHaveWildCard()
     }
 
     #ifdef DEBUG
     printf("WILD COUNT : %d\n", resultWild);
     #endif
 
-    int resultThree = janken_three_people();
+    int resultThree = janken_three_people(winnerArray);
     // 3人じゃんけんの結果を返す
     if (resultThree == AIKO) {
         printf("AIKO\n");
         break;
     } else if (resultThree == ONEWINNER) {
         printf("ONE WINNER\n");
+        // 誰が勝ったのかを判定する
+        // int winner = who_win_one();
+        // winnerArray[0] = winner;
         // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
     } else if (resultThree == TWOWINNER) {
         printf("TWO WINNER\n");
@@ -134,25 +142,55 @@ int main(void){
     #ifdef DEBUG
     int resultTwo = janken_two_people(codePlayer, codeComTwo);
     printf("resultTwo: %d\n", resultTwo);
+    printf("今のwinnerArray\n");
+    printf("%d\t%d\t%d\n", winnerArray[0], winnerArray[1], winnerArray[2]);
     #endif
 
   }
 
+  showResult();
+
   return (0);
 }
+
+void showResult(){
+    printf("じゃんけんの結果は、１位%d, ２位%d, ３位%dでした\n", winnerArray[0], winnerArray[1], winnerArray[2]);
+}
+
+// int who_win_one(){
+//
+// }
+//
+// int who_win_two(){
+//
+// }
 
 // ３人でじゃんけんをする時に呼ばれるメソッド
 // じゃんけんの結果を返す。
 // return AIKO, ONEWINNER, TWOWINNER
 // ただし、どのプレイヤが買ったのか判定できない
-int janken_three_people(){
+int janken_three_people(int data[PLAYERCOUNT]){
 
     int result = (numPlayerHand + comOne + comTwo) % 3;
     if (result == 0) {
         return AIKO;
     } else if (result == 1) {
+        if (numPlayerHand == comOne) {
+            data[0] = COMTWO;
+        } else if (numPlayerHand == comTwo) {
+            data[0] = COMONE;
+        } else {
+          data[0] = PLAYER;
+        }
         return ONEWINNER;
     } else {
+        if(numPlayerHand == comOne){
+          data[2] = COMTWO;
+        } else if (numPlayerHand == comTwo) {
+          data[2] = COMONE;
+        } else {
+          data[2] = PLAYER;
+        }
         return TWOWINNER;
     }
 }
