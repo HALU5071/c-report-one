@@ -28,9 +28,12 @@ ATTENTION!!!
 #define ONEWINNER 222
 #define TWOWINNER 333
 
+#define WILDNOTYET 0
+#define WILDTRUE 1
+
 // メソッド宣言
 int janken_two_people(int player1, int player2, int data[3]);
-int janken_three_people();
+int janken_three_people(int data[3]);
 int checkWildCard(int handOne, int handTwo, int handThree);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
@@ -46,7 +49,7 @@ int winnerArray[PLAYERCOUNT];
 // playersArray[0][??] : player
 // playersArray[1][??] ; comOne
 // playersArray[2][??] : comTwo
-int playersArray[2][3];
+int playersArray[3][3];
 
 int main(void){
 
@@ -65,6 +68,11 @@ int main(void){
   playersArray[0][0] = PLAYER;
   playersArray[1][0] = COMONE;
   playersArray[2][0] = COMTWO;
+
+  // ワイルドカードの使用を判定するためのフラグを格納する
+  playersArray[0][2] = WILDNOTYET;
+  playersArray[1][2] = WILDNOTYET;
+  playersArray[2][2] = WILDNOTYET;
 
   while(1){
 
@@ -108,8 +116,8 @@ int main(void){
     printf("com2: %d\n", comTwo);
     int i, j;
     for (i = 0; i < 3; i++) {
-      for(j = 0; j < 2; j++){
-        if (j == 1) {
+      for(j = 0; j < 3; j++){
+        if (j == 2) {
             printf("%d\n", playersArray[i][j]);
         }else {
             printf("%d\t", playersArray[i][j]);
@@ -117,7 +125,7 @@ int main(void){
       }
     }
 
-    int tmp2 = numPlayerHand + comOne + comTwo;
+    int tmp2 = numPlayerHand+comOne+comTwo;
     printf("tmp2 : %d\n", tmp2);
     #endif
 
@@ -132,22 +140,28 @@ int main(void){
         // 二人のみのじゃんけんに移行
         int whoLoseArray[2];
         int loseCounter = 0;
-        int i;
-        for(i = 0; i < 3; i++){
-          if (playersArray[i][1] == 4) {
-            winnerArray[0] = playersArray[i][0];
+        int t;
+        for(t = 0; t < 3; t++){
+          if (playersArray[t][1] == 4) {
+            winnerArray[0] = playersArray[t][0];
           } else {
-            whoLoseArray[loseCounter] = playersArray[i][0];
-            loseCounter += 1;
+            whoLoseArray[loseCounter] = playersArray[t][0];
+            loseCounter = 1;
           }
         }
+        #ifdef DEBUG
+        int o;
+        for(o = 0; o < 2; o++){
+          printf("Who Lose: %d\n", whoLoseArray[o]);
+        }
+        #endif
         janken_two_people(whoLoseArray[0], whoLoseArray[1], winnerArray);
     } else {
       #ifdef DEBUG
       printf("WILD COUNT : %d\n", resultWild);
       #endif
 
-      int resultThree = janken_three_people();
+      int resultThree = janken_three_people(winnerArray);
       // 3人じゃんけんの結果を返す
       if (resultThree == AIKO) {
           printf("AIKO\n");
@@ -173,7 +187,7 @@ int main(void){
 // じゃんけんの結果を返す。
 // return AIKO, ONEWINNER, TWOWINNER
 // ただし、どのプレイヤが買ったのか判定できない
-int janken_three_people(){
+int janken_three_people(int data[3]){
 
     int result = (numPlayerHand + comOne + comTwo) % 3;
     if (result == 0) {
@@ -216,7 +230,6 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3]){
     }
 
     if (handOne == SCISSORS && handTwo == ROCK) {
-        winnerArray
         return code2;
     } else if (handOne == ROCK && handTwo == SCISSORS) {
         return code1;
