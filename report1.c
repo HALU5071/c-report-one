@@ -39,6 +39,7 @@ void showResult();
 int showHandFromPlayer(int code);
 void showPlayerArray();
 void updateWildCardOnPlayersArray();
+void showWinnerArray();
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -175,34 +176,33 @@ int main(void){
     }
     */
 
-} else {
-    #ifdef DEBUG
-    printf("WILD COUNT : %d\n", resultWild);
-    int i;
-    for (i = 0; i < 3; i++) {
-        printf("winnerArray: %d\n", winnerArray[i]);
-    }
-    #endif
+            } else {
+                // ワイルドカードが一枚もなかった場合
+                #ifdef DEBUG
+                    printf("WILD COUNT : %d\n", resultWild);
+                    showWinnerArray();
+                    #endif
 
-    int resultThree = janken_three_people(winnerArray);
-    // 3人じゃんけんの結果を返す
-    if (resultThree == AIKO) {
-        printf("AIKO\n");
-    } else if (resultThree == ONEWINNER) {
-        printf("ONE WINNER\n");
-        // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
-    } else if (resultThree == TWOWINNER) {
-        printf("TWO WINNER\n");
-        // ここで敗者をwinnerArray[2]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
-    } else {
-        printf("IlligalState\n");
-        break;
-    }
-}
+                int resultThree = janken_three_people(winnerArray);
+                // 3人じゃんけんの結果を返す
 
-}
+                if (resultThree == AIKO) {
+                    printf("AIKO\n");
+                } else if (resultThree == ONEWINNER) {
+                    printf("ONE WINNER\n");
+                    // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
+                } else if (resultThree == TWOWINNER) {
+                    printf("TWO WINNER\n");
+                    // ここで敗者をwinnerArray[2]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
+                } else {
+                    printf("IlligalState\n");
+                    break;
+                }
+            }
 
-return (0);
+        }
+
+    return (0);
 }
 
 void showResult(){
@@ -286,6 +286,14 @@ void updateWildCardOnPlayersArray(){
         if (showHandFromPlayer(playersArray[r][0]) == 4) {
             playersArray[r][2] = WILDTRUE;
         }
+    }
+}
+
+// 勝者を順に格納しているwinnerArrayを表示します
+void showWinnerArray(){
+    int i;
+    for (i = 0; i < 3; i++) {
+        printf("winnerArray: %d\n", winnerArray[i]);
     }
 }
 
