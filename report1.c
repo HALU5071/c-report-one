@@ -32,10 +32,11 @@ ATTENTION!!!
 #define WILDTRUE 1
 
 // メソッド宣言
-int janken_two_people(int player1, int player2, int data[3]);
+int janken_two_people(int player1, int player2, int data[3], int playerData[3][3]);
 int janken_three_people(int data[3]);
 int checkWildCard(int handOne, int handTwo, int handThree);
 void showResult();
+int showHandFromPlayer(int code);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -137,6 +138,8 @@ int main(void){
       // 複数人のワイルドカードが出たら、あいこと同じ扱い。
       // whileを抜ける
       break;
+
+
     }else if (resultWild == 1) {
       // 一人勝ちのパターン。一人の勝利が確定
       // 二人のみのじゃんけんに移行
@@ -164,7 +167,7 @@ int main(void){
       #endif
 
       while(true){
-          int result = janken_two_people(whoLoseArray[0], whoLoseArray[1], winnerArray);
+          int result = janken_two_people(whoLoseArray[0], whoLoseArray[1], winnerArray, playersArray);
           if (result == 0) {
             break;
           }
@@ -232,7 +235,7 @@ int janken_three_people(int data[3]){
   }
 }
 
-int janken_two_people(int playerCode1, int playerCode2, int data[3]){
+int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerData[3][3]){
   int i;
   int position;
   // ここで、winnerArrayのどこが埋まっているのか判定する。
@@ -243,33 +246,22 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3]){
     }
   }
 
-  int code1 = playerCode1;
-  int code2 = playerCode2;
   int handOne = 0;
   int handTwo = 0;
+  int j;
+  for (j = 0; j < PLAYERCOUNT; j++) {
+    if (playerData[j][0] == playerCode1) {
+      handOne = playerData[j][1];
+    }
 
-  // 要改善
-  // player1, player2からもらってきたプレイヤーコードから、
-  // それぞれのプレイやーの手を格納していく
-  if (code1 == COMONE) {
-    handOne = comOne;
-  } else if (code1 == COMTWO) {
-    handOne = comTwo;
-  } else {
-    handOne = numPlayerHand;
-  }
-
-  if (code2 == COMONE) {
-    handTwo = comOne;
-  } else if (code2 == COMTWO) {
-    handTwo = comTwo;
-  } else  {
-    handTwo = numPlayerHand;
+    if (playerData[j][0] == playerCode2) {
+      handTwo = playerData[j][1];
+    }
   }
 
   // ここから実際のじゃんけんを行う
   if (handTwo == handOne) {
-    return AIKO;
+    return 1;
   }
 
   if (handOne == SCISSORS && handTwo == ROCK) {
@@ -279,8 +271,23 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3]){
   }else if (handOne < handTwo) {
     return code2;
   } else {
-    return code1;
+
   }
+
+  return 0;
+}
+
+int showHandFromPlayer(int code){
+  int hand;
+  int i;
+  for(i = 0; i < PLAYERCOUNT; i++){
+    if (playersArray[i][0] == code) {
+      hand = playersArray[i][1];
+      break;
+    }
+  }
+
+  return hand;
 }
 
 // プレイヤーの手にあるワイルドカードの枚数をチェックする
