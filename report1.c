@@ -48,6 +48,8 @@ void showDummyCode();
 int generateJankenHand(int seed);
 int convertPlayerHand(char a);
 void autoJanken();
+int searchDifferentHand(int data[3][3]);
+void createLastPlayerArray(int data[2], int differentHand);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -120,7 +122,7 @@ int main(void){
 
         showPlayerArray();
 
-        int tmp2 = numPlayerHand+comOne+comTwo;
+        int tmp2 = numPlayerHand + comOne + comTwo;
         printf("tmp2 : %d\n", tmp2);
         #endif
 
@@ -164,13 +166,16 @@ int main(void){
             #endif
 
             int j;
+            int flag = 0;
             for(j = 0; j < 2; j++){
                 if (whoLoseArray[j] == PLAYER) {
-
-                } else {
-                    // ワイルドカードで勝利したのはPlayerなので、computer同士で自動的にじゃんけんさせる
-                    autoJanken();
+                    flag = 1;
+                    break;
                 }
+            }
+
+            if (flag == 0) {
+                autoJanken();
             }
 
 
@@ -180,6 +185,8 @@ int main(void){
                 showWinnerArray();
             #endif
 
+            int lastArray[2];
+
             int resultThree = jankenThreePeople(winnerArray);
             // 3人じゃんけんの結果を返す
 
@@ -187,13 +194,28 @@ int main(void){
                 showAIKO();
             } else if (resultThree == ONEWINNER) {
                 showOneWinner();
+                int diffHand = searchDifferentHand(playersArray);
                 // ここで勝者をwinnerArray[0]に入れて、のこり二人をjankenTweople()でじゃんけんさせる
+                winnerArray[0] = diffHand;
+
+                #ifdef DEBUG
+                    printf("Diff: %d\n", diffHand);
+                #endif
+
+                createLastPlayerArray(lastArray, diffHand);
             } else if (resultThree == TWOWINNER) {
                 showTwoWinner();
+                int diffHand = searchDifferentHand(playersArray);
                 // ここで敗者をwinnerArray[2]に入れて、のこり二人をjankenThreePeople()でじゃんけんさせる
+                winnerArray[2] = diffHand;
+                createLastPlayerArray(lastArray, diffHand);
+
+                #ifdef DEBUG
+                    printf("Diff: %d\n", diffHand);
+                #endif
 
             } else {
-                printf("IlligalState\n");
+                printf("IllegalState\n");
                 break;
             }
         }
@@ -202,6 +224,28 @@ int main(void){
 
     showResult();
     return (0);
+}
+
+// 3つのなかで、違う手であるもののプレイヤーコードを返します
+int searchDifferentHand(int data[3][3]){
+    if (playersArray[0][1] == playersArray[1][1]) {
+        return playersArray[2][0];
+    } else if (playersArray[0][1] == playersArray[2][1]) {
+        return playersArray[1][0];
+    } else {
+        return playersArray[0][0];
+    }
+}
+
+void createLastPlayerArray(int data[2], int differentHand){
+    int cursor = 0;
+    int t;
+    for(t = 0; t < 3; t++){
+        if (playersArray[t][0] != differentHand) {
+            data[cursor] = playersArray[t][0];
+            cursor++;
+        }
+    }
 }
 
 void showResult(){
@@ -227,7 +271,7 @@ void showResult(){
 // ただし、どのプレイヤが買ったのか判定できない
 int jankenThreePeople(int data[3]){
 
-    int result = (numPlayerHand + comOne + comTwo) % 3;
+    int result = (playersArray[0][1] + playersArray[1][1] + playersArray[2][1]) % 3;
     if (result == 0) {
         return AIKO;
     } else if (result == 1) {
