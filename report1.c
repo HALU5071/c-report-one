@@ -40,6 +40,10 @@ int showHandFromPlayer(int code);
 void showPlayerArray();
 void updateWildCardOnPlayersArray();
 void showWinnerArray();
+void showAIKO();
+void showMultipleWildCard();
+void showOneWinner();
+void showTwoWinner();
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -138,10 +142,7 @@ int main(void){
 
         if (resultWild == 2) {
             // 複数人のワイルドカードが出たら、あいこと同じ扱い。
-            printf("*******************************************\n");
-            printf("***      Multipule Wild Card. Again     ***\n");
-            printf("*******************************************\n");
-
+            showMultipleWildCard();
 
         }else if (resultWild == 1) {
             // 一人勝ちのパターン。一人の勝利が確定
@@ -190,18 +191,12 @@ int main(void){
             // 3人じゃんけんの結果を返す
 
             if (resultThree == AIKO) {
-                printf("*******************************************\n");
-                printf("***                AIKO                 ***\n");
-                printf("*******************************************\n");
+                showAIKO();
             } else if (resultThree == ONEWINNER) {
-                printf("*******************************************\n");
-                printf("***              ONE WINNER             ***\n");
-                printf("*******************************************\n");
+                showOneWinner();
                 // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
             } else if (resultThree == TWOWINNER) {
-                printf("*******************************************\n");
-                printf("***              TWO WINNER             ***\n");
-                printf("*******************************************\n");
+                showTwoWinner();
                 // ここで敗者をwinnerArray[2]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
 
             } else {
@@ -212,10 +207,12 @@ int main(void){
 
     }
 
+    showResult();
     return (0);
 }
 
 void showResult(){
+    printf("*******************************************\n");
     printf("結果は、\n");
 
     int i;
@@ -228,6 +225,7 @@ void showResult(){
             printf("%d位: %s\n", i+1, "COM2");
         }
     }
+    printf("*******************************************\n");
 }
 
 // ３人でじゃんけんをする時に呼ばれるメソッド
@@ -277,13 +275,37 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerD
     }
 
     if (handOne == SCISSORS && handTwo == ROCK) {
-        // return code2;
+        if (position 1) {
+            winnerArray[1] = playerCode2;
+            winnerArray[2] = playerCode1;
+        } else {
+            winnerArray[1] = playerCode1;
+            winnerArray[2] = playerCode2;
+        }
     } else if (handOne == ROCK && handTwo == SCISSORS) {
-        // return code1;
+        if (position 1) {
+            winnerArray[1] = playerCode1;
+            winnerArray[2] = playerCode2;
+        } else {
+            winnerArray[1] = playerCode2;
+            winnerArray[2] = playerCode1;
+        }
     }else if (handOne < handTwo) {
-        // return code2;
+        if (position 1) {
+            winnerArray[1] = playerCode2;
+            winnerArray[2] = playerCode1;
+        } else {
+            winnerArray[1] = playerCode1;
+            winnerArray[2] = playerCode2;
+        }
     } else {
-
+        if (position 1) {
+            winnerArray[1] = playerCode1;
+            winnerArray[2] = playerCode2;
+        } else {
+            winnerArray[1] = playerCode2;
+            winnerArray[2] = playerCode1;
+        }
     }
 
     return 0;
@@ -354,4 +376,27 @@ int checkWildCard(int handOne, int handTwo, int handThree){
     }else {
         return total;
     }
+}
+
+void showAIKO(){
+    printf("*******************************************\n");
+    printf("***                AIKO                 ***\n");
+    printf("*******************************************\n");
+}
+
+void showMultipleWildCard(){
+    printf("*******************************************\n");
+    printf("***      Multiple Wild Card. Again     ***\n");
+    printf("*******************************************\n");
+}
+void showOneWinner(){
+    printf("*******************************************\n");
+    printf("***              ONE WINNER             ***\n");
+    printf("*******************************************\n");
+}
+
+void showTwoWinner(){
+    printf("*******************************************\n");
+    printf("***              TWO WINNER             ***\n");
+    printf("*******************************************\n");
 }
