@@ -37,6 +37,7 @@ int janken_three_people(int data[3]);
 int checkWildCard(int handOne, int handTwo, int handThree);
 void showResult();
 int showHandFromPlayer(int code);
+void showPlayerArray();
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -116,17 +117,8 @@ int main(void){
     printf("player: %d\n", numPlayerHand);
     printf("com1: %d\n", comOne);
     printf("com2: %d\n", comTwo);
-    int i, j;
-    printf("プレイヤー\t手\twildcard\n");
-    for (i = 0; i < 3; i++) {
-      for(j = 0; j < 3; j++){
-        if (j == 2) {
-          printf("%d\n", playersArray[i][j]);
-        }else {
-          printf("%d\t", playersArray[i][j]);
-        }
-      }
-    }
+
+    showPlayerArray();
 
     int tmp2 = numPlayerHand+comOne+comTwo;
     printf("tmp2 : %d\n", tmp2);
@@ -134,10 +126,23 @@ int main(void){
 
     // ここでワイルドカードの処理をする
     int resultWild = checkWildCard(playersArray[0][1], playersArray[1][1], playersArray[2][1]);
+
+    // ワイルドカードを使ってしまった人を記録する
+    int r;
+    for(r = 0; r < PLAYERCOUNT; r++){
+      if (showHandFromPlayer(playersArray[r][0]) == 4) {
+        playersArray[r][2] = WILDTRUE;
+      }
+    }
+
+    #ifdef DEBUG
+    showPlayerArray();
+    #endif
+
     if (resultWild == 2) {
       // 複数人のワイルドカードが出たら、あいこと同じ扱い。
       // whileを抜ける
-      break;
+      printf("Multipule Wild Card. Again\n");
 
 
     }else if (resultWild == 1) {
@@ -164,14 +169,16 @@ int main(void){
       for (i = 0; i < 3; i++) {
         printf("winnerArray: %d\n", winnerArray[i]);
       }
+      printf("ワイルドカードは一人\n");
       #endif
-
+/*
       while(true){
           int result = janken_two_people(whoLoseArray[0], whoLoseArray[1], winnerArray, playersArray);
           if (result == 0) {
             break;
           }
       }
+      */
 
     } else {
       #ifdef DEBUG
@@ -186,7 +193,6 @@ int main(void){
       // 3人じゃんけんの結果を返す
       if (resultThree == AIKO) {
         printf("AIKO\n");
-        break;
       } else if (resultThree == ONEWINNER) {
         printf("ONE WINNER\n");
         // ここで勝者をwinnerArray[0]に入れて、のこり二人をjanken_two_people()でじゃんけんさせる
@@ -205,7 +211,7 @@ int main(void){
 }
 
 void showResult(){
-  printf("結果は、\n", );
+  printf("結果は、\n");
 
   int i;
   for(i = 0; i < PLAYERCOUNT; i++){
@@ -235,6 +241,7 @@ int janken_three_people(int data[3]){
   }
 }
 
+// プレイヤーコードを元に、二人でじゃんけんを行います
 int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerData[3][3]){
   int i;
   int position;
@@ -265,11 +272,11 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerD
   }
 
   if (handOne == SCISSORS && handTwo == ROCK) {
-    return code2;
+    // return code2;
   } else if (handOne == ROCK && handTwo == SCISSORS) {
-    return code1;
+    // return code1;
   }else if (handOne < handTwo) {
-    return code2;
+    // return code2;
   } else {
 
   }
@@ -277,6 +284,22 @@ int janken_two_people(int playerCode1, int playerCode2, int data[3], int playerD
   return 0;
 }
 
+// playersArrayを、表形式で表示します
+void showPlayerArray(){
+  int i, j;
+  printf("プレイヤー\t手\twildcard\n");
+  for (i = 0; i < 3; i++) {
+    for(j = 0; j < 3; j++){
+      if (j == 2) {
+        printf("%d\n", playersArray[i][j]);
+      }else {
+        printf("%d\t", playersArray[i][j]);
+      }
+    }
+  }
+}
+
+// プレイヤーコードを元に、その人の手を表示します
 int showHandFromPlayer(int code){
   int hand;
   int i;
