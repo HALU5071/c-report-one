@@ -88,25 +88,41 @@ int main(void){
         printf("Press c g p w\n");
         continue;
     }
+
+    // プレイヤーの手を格納
+    playersArray[0][1] = numPlayerHand;
+
     // コンピュータの手をランダムに出力
     // シード値の作成
     init_genrand((unsigned)time(NULL));
     comOne = genrand_int32()%4 + 1;
+    playersArray[1][1] = comOne;
 
     init_genrand((unsigned)time(NULL) + 100);
     comTwo = genrand_int32()%4 + 1;
+    playersArray[2][1] = comTwo;
 
     #ifdef DEBUG
-    printf("com1:%d\n", comOne);
-    printf("com2:%d\n", comTwo);
-    printf("numPlayerHand : %d\n", numPlayerHand);
+    printf("player: %d\n", numPlayerHand);
+    printf("com1: %d\n", comOne);
+    printf("com2: %d\n", comTwo);
+    int i, j;
+    for (i = 0; i < 3; i++) {
+      for(j = 0; j < 2; j++){
+        if (j == 1) {
+            printf("%d\n", playersArray[i][j]);
+        }else {
+            printf("%d\t", playersArray[i][j]);
+        }
+      }
+    }
 
     int tmp2 = numPlayerHand + comOne + comTwo;
     printf("tmp2 : %d\n", tmp2);
     #endif
 
     // ここでワイルドカードの処理をする
-    int resultWild = checkWildCard(numPlayerHand, comOne, comTwo);
+    int resultWild = checkWildCard(playersArray[0][1], playersArray[1][1], playersArray[2][1]);
     if (resultWild == 2) {
         // 複数人のワイルドカードが出たら、あいこと同じ扱い。
         // whileを抜ける
@@ -114,6 +130,15 @@ int main(void){
     }else if (resultWild == 1) {
         // 一人勝ちのパターン。一人の勝利が確定
         // 二人のみのじゃんけんに移行
+        int whoWin = 0;
+        int i;
+        for(i = 0; i < 3; i++){
+          if (playersArray[i][1] == 4) {
+            winnerArray[0] = playersArray[i][0];
+            whoWin = playersArray[i][0];
+          }
+        }
+        janken_two_people();
     }
 
     #ifdef DEBUG
@@ -137,7 +162,7 @@ int main(void){
     }
 
     #ifdef DEBUG
-    int resultTwo = janken_two_people(codePlayer, codeComTwo);
+    int resultTwo = janken_two_people(PLAYER, COMTWO);
     printf("resultTwo: %d\n", resultTwo);
     #endif
 
@@ -162,7 +187,7 @@ int janken_three_people(){
     }
 }
 
-int janken_two_people(int playerCode1, int playerCode2){
+int janken_two_people(int playerCode1, int playerCode2, int data[2]){
     int code1 = playerCode1;
     int code2 = playerCode2;
     int handOne = 0;
