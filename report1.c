@@ -20,14 +20,17 @@ ATTENTION!!!
 #define SCISSORS 3
 #define WILD 4
 
+// プレイヤーら特有の識別コード
 #define PLAYER 1991
 #define COMONE 2882
 #define COMTWO 3773
 
+// 状態を表現するコード
 #define AIKO 111
 #define ONEWINNER 222
 #define TWOWINNER 333
 
+// ワイルドカードの使用についてのコード
 #define WILDNOTYET 0
 #define WILDTRUE 1
 
@@ -51,7 +54,7 @@ int convertPlayerHand(char a);
 void autoJanken();
 int searchDifferentHand(int data[3][3]);
 void createLastPlayerArray(int data[2], int differentHand);
-int determinJankenTwo(int data[2]);
+void determinJankenTwo(int data[2]);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -211,6 +214,8 @@ int main(void){
                     printf("Diff: %d\n", diffHand);
                 #endif
 
+                break;
+
             } else {
                 printf("IllegalState\n");
                 break;
@@ -226,7 +231,7 @@ int main(void){
 // ふたりのじゃんけんをどのように行うのかを決定します。
 // 残っている二人にプレイヤー自身が含まれているなら、入力を元にするじゃんけん
 // 残っている二人がコンピュータなら、autoJanken()を呼び出し、自動的にじゃんけんをおこないます。
-int determinJankenTwo(int data[2]){
+void determinJankenTwo(int data[2]){
     int j;
     int flag = 0;
     for(j = 0; j < 2; j++){
@@ -238,6 +243,10 @@ int determinJankenTwo(int data[2]){
 
     if (flag == 0) {
         autoJanken();
+    } else if (flag == 1) {
+        showDummyCode();
+    } else {
+        printf("IllegalState\n");
     }
 
 }
@@ -268,16 +277,16 @@ void createLastPlayerArray(int data[2], int differentHand){
 // 結果を表示します
 void showResult(){
     printf("*******************************************\n");
-    printf("結果は、\n");
+    printf("Result: \n");
 
     int i;
     for(i = 0; i < PLAYERCOUNT; i++){
         if (winnerArray[i] == PLAYER) {
-            printf("%d位: %s\n", i+1, "PLAYER");
+            printf("%d : %s\n", i+1, "PLAYER");
         } else if (winnerArray[i] == COMONE) {
-            printf("%d位: %s\n", i+1, "COM1");
+            printf("%d : %s\n", i+1, "COM1");
         } else {
-            printf("%d位: %s\n", i+1, "COM2");
+            printf("%d : %s\n", i+1, "COM2");
         }
     }
     printf("*******************************************\n");
@@ -486,6 +495,7 @@ void autoJanken(){
         }
     }
 
+    showWinnerArray();
     #ifdef DEBUG
         printf("Com1: %d, Com2: %d\n", playersArray[1][1], playersArray[2][1]);
     #endif
