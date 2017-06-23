@@ -48,6 +48,7 @@ void showMultipleWildCard();
 void showOneWinner();
 void showTwoWinner();
 void showDummyCode();
+int generateJankenHand(int seed, int code);
 int generateJankenHandTo4(int seed);
 int generateJankenHandTo3(int seed);
 int convertPlayerHandFromInput(char a);
@@ -123,7 +124,7 @@ int main(void){
         comOne = generateJankenHand(0, playersArray[1][0]);
         playersArray[1][1] = comOne;
 
-        comTwo = generateJankenHandT(100, playersArray[2][0]);
+        comTwo = generateJankenHand(100, playersArray[2][0]);
         playersArray[2][1] = comTwo;
 
         #ifdef DEBUG
@@ -436,9 +437,9 @@ int generateJankenHand(int seed, int code){
 
     int hand = 0;
 
-    if (wildCardBoolean == WILDTRUE) {
+    if (wildCardBoolean == WILDFALSE) {
         hand = generateJankenHandTo4(seed);
-    } else if (wildCardBoolean == WILDFALSE) {
+    } else if (wildCardBoolean == WILDTRUE) {
         hand = generateJankenHandTo3(seed);
         #ifdef DEBUG
             printf("State: ComHand: ワイルドカードはすでに使用済みです。\n");
@@ -515,7 +516,7 @@ int showWildCardFromPlayerCode(int code){
         }
     }
 
-    return hand;
+    return wildCardBoolean;
 }
 
 // プレイヤーコードを元に、その人の手を表示します
@@ -583,8 +584,8 @@ int manualJankenWithComputer(int comCode){
 // コンピュータ二人で行うじゃんけんを自動化するメソッドです。
 int autoJanken(){
     while (1) {
-        playersArray[1][1] = generateJankenHandTo4(199);
-        playersArray[2][2] = generateJankenHandTo4(12);
+        playersArray[1][1] = generateJankenHand(199, playersArray[1][0]);
+        playersArray[2][2] = generateJankenHand(12, playersArray[2][0]);
 
         int result = jankenTwoPeople(playersArray[1][0], playersArray[2][0], winnerArray, playersArray);
         if (result == 0) {
