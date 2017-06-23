@@ -128,14 +128,14 @@ int main(void){
         playersArray[2][1] = comTwo;
 
         #ifdef DEBUG
-        printf("plyr: %d\n", numPlayerHand);
-        printf("com1: %d\n", comOne);
-        printf("com2: %d\n", comTwo);
+        printf("State: plyr: %d\n", numPlayerHand);
+        printf("State: com1: %d\n", comOne);
+        printf("State: com2: %d\n", comTwo);
 
         showPlayerArray();
 
         int tmp2 = numPlayerHand + comOne + comTwo;
-        printf("tmp2 : %d\n", tmp2);
+        printf("State: tmp2 : %d\n", tmp2);
         #endif
 
         // ここでワイルドカードの処理をする
@@ -171,10 +171,10 @@ int main(void){
             #ifdef DEBUG
                 int o;
                 for(o = 0; o < 2; o++){
-                    printf("Who Lose: %d\n", lastArray[o]);
+                    printf("State: Who Lose: %d\n", lastArray[o]);
                 }
                 showWinnerArray();
-                printf("ワイルドカードは一人\n");
+                printf("State: ワイルドカードは一人\n");
             #endif
 
             determineJankenTwo(lastArray);
@@ -201,11 +201,10 @@ int main(void){
                 winnerArray[0] = diffHand;
 
                 #ifdef DEBUG
-                    printf("Diff: %d\n", diffHand);
+                    printf("State: Diff: %d\n", diffHand);
                 #endif
 
                 createLastPlayersArray(lastArray, diffHand);
-                showWinnerArray();
                 determineJankenTwo(lastArray);
 
             } else if (resultThree == TWOWINNER) {
@@ -213,20 +212,21 @@ int main(void){
                 int diffHand = searchDifferentHand(playersArray);
 
                 #ifdef DEBUG
-                    printf("Diff: %d\n", diffHand);
+                    printf("State: Diff: %d\n", diffHand);
                 #endif
 
                 // ここで敗者をwinnerArray[2]に入れて、のこり二人をjankenThreePeople()でじゃんけんさせる
                 winnerArray[2] = diffHand;
                 createLastPlayersArray(lastArray, diffHand);
-                showWinnerArray();
                 // ふたりじゃんけんの方針を決定します。
                 determineJankenTwo(lastArray);
 
 
             } else {
-                printf("IllegalState\n");
+                printf("State: IllegalState\n");
             }
+
+            showWinnerArray();
 
             break;
         }
@@ -255,11 +255,11 @@ int determineJankenTwo(int data[2]){
     if (flag == 0) {
         int result = autoJanken();
     } else if (flag == 1) {
-        printf("data[position]: %d\n", data[position]);
+        printf("State: data[position]: %d\n", data[position]);
         int code = data[position];
         manualJankenWithComputer(code);
     } else {
-        printf("IllegalState\n");
+        printf("State: IllegalState\n");
     }
 
     return 1;
@@ -296,11 +296,11 @@ void showResult(){
     int i;
     for(i = 0; i < PLAYERCOUNT; i++){
         if (winnerArray[i] == PLAYER) {
-            printf("%d : %s\n", i+1, "PLAYER");
+            printf("%d : %s\n", i+1, playerName);
         } else if (winnerArray[i] == COMONE) {
-            printf("%d : %s\n", i+1, "COM1");
+            printf("%d : %s\n", i+1, computerOneName);
         } else {
-            printf("%d : %s\n", i+1, "COM2");
+            printf("%d : %s\n", i+1, computerTwoName);
         }
     }
     printf("*******************************************\n");
@@ -335,8 +335,11 @@ int jankenTwoPeople(int playerCode1, int playerCode2, int data[3], int playerDat
     }
 
     int code1 = playerCode1;
-    printf("second: %d\n", playerCode2);
-    printf("third: %d\n", code2);
+
+    #ifdef DEBUG
+        printf("second: %d\n", playerCode2);
+        printf("third: %d\n", code2);
+    #endif
 
     int handOne = 0;
     int handTwo = 0;
@@ -346,7 +349,7 @@ int jankenTwoPeople(int playerCode1, int playerCode2, int data[3], int playerDat
             handOne = playerData[j][1];
 
             #ifdef DEBUG
-                printf("jankenTwoPeople: %d: %d\n", playerCode1, handOne);
+                printf("State: jankenTwoPeople: %d: %d\n", playerCode1, handOne);
             #endif
         }
 
@@ -354,7 +357,7 @@ int jankenTwoPeople(int playerCode1, int playerCode2, int data[3], int playerDat
             handTwo = playerData[j][1];
 
             #ifdef DEBUG
-                printf("jankenTwoPeople: %d: %d\n", playerCode2, handTwo);
+                printf("State: jankenTwoPeople: %d: %d\n", playerCode2, handTwo);
             #endif
         }
     }
@@ -445,7 +448,7 @@ int generateJankenHand(int seed, int code){
             printf("State: ComHand: ワイルドカードはすでに使用済みです。\n");
         #endif
     } else {
-        printf("IllegalState\n");
+        printf("State: IllegalState\n");
         hand = '\0';
     }
 
@@ -487,7 +490,7 @@ void updateWildCardOnPlayersArray(){
 void showWinnerArray(){
     int i;
     for (i = 0; i < 3; i++) {
-        printf("winnerArray[%d位]: %d\n",i+1 ,winnerArray[i]);
+        printf("State: winnerArray[%d位]: %d\n",i+1 ,winnerArray[i]);
     }
 }
 
@@ -553,6 +556,7 @@ int checkWildCard(int handOne, int handTwo, int handThree){
     }
 }
 
+// 残りのプレイヤー二人のなかに、プレイヤー自身が含まれているときのじゃんけんをします。
 int manualJankenWithComputer(int comCode){
     int code = 0;
     code = comCode;
@@ -568,7 +572,10 @@ int manualJankenWithComputer(int comCode){
             continue;
         }
 
-        printf("first: %d\n", code);
+        #ifdef DEBUG
+            printf("State: first: %d\n", code);
+        #endif
+
         // プレイヤーの手を格納
         playersArray[0][1] = numPlayerHand;
         int result = jankenTwoPeople(playersArray[0][0], code, winnerArray, playersArray);
@@ -595,7 +602,7 @@ int autoJanken(){
 
     showWinnerArray();
     #ifdef DEBUG
-        printf("Com1: %d, Com2: %d\n", playersArray[1][1], playersArray[2][1]);
+        printf("State: Com1: %d, Com2: %d\n", playersArray[1][1], playersArray[2][1]);
     #endif
 
     return 1;
@@ -603,7 +610,7 @@ int autoJanken(){
 
 // ダミー表示を行います。
 void showDummyCode(){
-    printf("This is Dummy method\n");
+    printf("State: This is Dummy method\n");
 }
 
 void showAIKO(){
