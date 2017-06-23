@@ -38,7 +38,8 @@ int jankenTwoPeople(int player1, int player2, int data[3], int playerData[3][3])
 int jankenThreePeople(int data[3]);
 int checkWildCard(int handOne, int handTwo, int handThree);
 void showResult();
-int showHandFromPlayer(int code);
+int showHandFromPlayerCode(int code);
+int showWildCardFromPlayerCode(int code);
 void showPlayerArray();
 void updateWildCardOnPlayersArray();
 void showWinnerArray();
@@ -49,11 +50,11 @@ void showTwoWinner();
 void showDummyCode();
 int generateJankenHandTo4(int seed);
 int generateJankenHandTo3(int seed);
-int convertPlayerHand(char a);
+int convertPlayerHandFromInput(char a);
 int autoJanken();
 int searchDifferentHand(int data[3][3]);
-void createLastPlayerArray(int data[2], int differentHand);
-int determinJankenTwo(int data[2]);
+void createLastPlayersArray(int data[2], int differentHand);
+int determineJankenTwo(int data[2]);
 int manualJankenWithComputer(int comCode);
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
@@ -108,7 +109,8 @@ int main(void){
 
         // 入力された手を数字に変換する
         // ここで正しい手を入力したかチェック
-        int numPlayerHand = convertPlayerHand(yourHand);
+        // ワイルドカードの複数使用もここで制限できる
+        int numPlayerHand = convertPlayerHandFromInput(yourHand);
         if (numPlayerHand == '\0') {
             continue;
         }
@@ -118,11 +120,11 @@ int main(void){
 
         // コンピュータの手をランダムに出力
         // シード値の作成
-        comOne = generateJankenHandTo4(0);
-        playersArray[1][1] = 3;
+        comOne = generateJankenHand(0, playersArray[1][0]);
+        playersArray[1][1] = comOne;
 
-        comTwo = generateJankenHandTo4(100);
-        playersArray[2][1] = 2;
+        comTwo = generateJankenHandT(100, playersArray[2][0]);
+        playersArray[2][1] = comTwo;
 
         #ifdef DEBUG
         printf("plyr: %d\n", numPlayerHand);
@@ -174,7 +176,7 @@ int main(void){
                 printf("ワイルドカードは一人\n");
             #endif
 
-            determinJankenTwo(lastArray);
+            determineJankenTwo(lastArray);
 
 
         } else {
@@ -201,9 +203,9 @@ int main(void){
                     printf("Diff: %d\n", diffHand);
                 #endif
 
-                createLastPlayerArray(lastArray, diffHand);
+                createLastPlayersArray(lastArray, diffHand);
                 showWinnerArray();
-                determinJankenTwo(lastArray);
+                determineJankenTwo(lastArray);
 
             } else if (resultThree == TWOWINNER) {
                 showTwoWinner();
@@ -215,10 +217,10 @@ int main(void){
 
                 // ここで敗者をwinnerArray[2]に入れて、のこり二人をjankenThreePeople()でじゃんけんさせる
                 winnerArray[2] = diffHand;
-                createLastPlayerArray(lastArray, diffHand);
+                createLastPlayersArray(lastArray, diffHand);
                 showWinnerArray();
                 // ふたりじゃんけんの方針を決定します。
-                determinJankenTwo(lastArray);
+                determineJankenTwo(lastArray);
 
 
             } else {
@@ -237,7 +239,7 @@ int main(void){
 // ふたりのじゃんけんをどのように行うのかを決定します。
 // 残っている二人にプレイヤー自身が含まれているなら、入力を元にするじゃんけん
 // 残っている二人がコンピュータなら、autoJanken()を呼び出し、自動的にじゃんけんをおこないます。
-int determinJankenTwo(int data[2]){
+int determineJankenTwo(int data[2]){
     int j;
     int position = 0;
     int flag = 0;
@@ -274,7 +276,7 @@ int searchDifferentHand(int data[3][3]){
 }
 
 // 残りのプレイヤーでじゃんけんをする際に用いる配列を生成します。
-void createLastPlayerArray(int data[2], int differentHand){
+void createLastPlayersArray(int data[2], int differentHand){
     int cursor = 0;
     int t;
     for(t = 0; t < 3; t++){
@@ -306,7 +308,6 @@ void showResult(){
 
 // ただし、どのプレイヤが買ったのか判定できない
 int jankenThreePeople(int data[3]){
->>>>>>> develop-array
 
     int result = (playersArray[0][1] + playersArray[1][1] + playersArray[2][1]) % 3;
     if (result == 0) {
@@ -402,7 +403,7 @@ int jankenTwoPeople(int playerCode1, int playerCode2, int data[3], int playerDat
 // 入力された文字を元に、じゃんけんの手を表す整数に変換します。
 // 入力が正しくない場合には、空白文字を返します
 // ワイルドカードが 2 回以上入力されているばあいは \1 を返します
-int convertPlayerHand(char a){
+int convertPlayerHandFromInput(char a){
     int hand;
     if (a == 'c') {
         hand = SCISSORS;
@@ -420,6 +421,30 @@ int convertPlayerHand(char a){
     // プレイヤーのワイルドカードの使用を確認する。
     if (playersArray[0][2] == WILDTRUE && hand == WILD) {
         printf("You have already used a wild card..\n");
+        hand = '\0';
+    }
+
+    return hand;
+}
+
+// プレイヤーコードから、ワイルドカードの使用の有無を判定し、それを元にじゃんけんの手を生成します。
+// 使っていなければ、WILDTRUEを使い、generateJankenHandTo4(seed)を呼び出し手を生成、
+// つかっていれば、WILDFALSEを使い、generateJankenHandTo3(seed)を呼び出し手を生成します。
+// エラーコードは空白文字です。
+int generateJankenHand(int seed, int code){
+    int wildCardBoolean = showWildCardFromPlayerCode(code);
+
+    int hand = 0;
+
+    if (wildCardBoolean == WILDTRUE) {
+        hand = generateJankenHandTo4(seed);
+    } else if (wildCardBoolean == WILDFALSE) {
+        hand = generateJankenHandTo3(seed);
+        #ifdef DEBUG
+            printf("State: ComHand: ワイルドカードはすでに使用済みです。\n");
+        #endif
+    } else {
+        printf("IllegalState\n");
         hand = '\0';
     }
 
@@ -451,7 +476,7 @@ int generateJankenHandTo3(int seed){
 void updateWildCardOnPlayersArray(){
     int r;
     for(r = 0; r < PLAYERCOUNT; r++){
-        if (showHandFromPlayer(playersArray[r][0]) == 4) {
+        if (showHandFromPlayerCode(playersArray[r][0]) == 4) {
             playersArray[r][2] = WILDTRUE;
         }
     }
@@ -480,8 +505,21 @@ void showPlayerArray(){
     }
 }
 
+int showWildCardFromPlayerCode(int code){
+    int wildCardBoolean;
+    int i;
+    for(i = 0; i < PLAYERCOUNT; i++){
+        if (playersArray[i][0] == code) {
+            wildCardBoolean = playersArray[i][2];
+            break;
+        }
+    }
+
+    return hand;
+}
+
 // プレイヤーコードを元に、その人の手を表示します
-int showHandFromPlayer(int code){
+int showHandFromPlayerCode(int code){
     int hand;
     int i;
     for(i = 0; i < PLAYERCOUNT; i++){
@@ -523,7 +561,7 @@ int manualJankenWithComputer(int comCode){
         printf("You throw >> ");
         char yourHand = '\0';
         scanf("%s", &yourHand);
-        int numPlayerHand = convertPlayerHand(yourHand);
+        int numPlayerHand = convertPlayerHandFromInput(yourHand);
 
         if (numPlayerHand == '\0') {
             continue;
