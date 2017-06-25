@@ -7,7 +7,7 @@ ATTENTION!!!
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "MT.h"
+// #include "MT.h"
 
 #define DEBUG
 
@@ -488,8 +488,8 @@ int generateJankenHand(int seed, int code){
 // 返される値は、1, 2, 3, 4です
 int generateJankenHandTo4(int seed){
     int hand = 0;
-    init_genrand((unsigned)time(NULL) + seed);
-    hand = genrand_int32()%4 + 1;
+    srand((unsigned)time(NULL) + seed);
+    hand = rand()%4 + 1;
 
     return hand;
 }
@@ -498,8 +498,8 @@ int generateJankenHandTo4(int seed){
 // 返される値は、1, 2, 3です
 int generateJankenHandTo3(int seed){
     int hand = 0;
-    init_genrand((unsigned)time(NULL) + seed);
-    hand = genrand_int32()%3 + 1;
+    srand((unsigned)time(NULL) + seed);
+    hand = rand()%3 + 1;
 
     return hand;
 }
