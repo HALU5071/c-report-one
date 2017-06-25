@@ -1,15 +1,10 @@
-/*
-ATTENTION!!!
-このプログラムはメルセンヌ・ツイスタを使用しています。
-かならずディレクトリ内にMT.hを含めてください
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+// メルセンヌ・ツイスタの利用
 // #include "MT.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define PLAYERCOUNT 3
 
@@ -47,6 +42,8 @@ void showAIKO();
 void showMultipleWildCard();
 void showOneWinner();
 void showTwoWinner();
+void showMessageVsComputer();
+void showMessageComputerBattle();
 void showDummyCode();
 int generateJankenHand(int seed, int code);
 int generateJankenHandTo4(int seed);
@@ -271,13 +268,16 @@ int determineJankenTwo(int data[2]){
 
     int result = 0;
     if (flag == 0) {
+        showMessageComputerBattle();
         result = autoJanken();
     } else if (flag == 1) {
         #ifdef DEBUG
             printf("DEBUG: data[position]: %d\n", data[position]);
         #endif
         int code = data[position];
+        showMessageVsComputer();
         result = manualJankenWithComputer(code);
+        initWildCard();
     } else {
         result = '\0';
         printf("DEBUG: IllegalState\n");
@@ -307,7 +307,9 @@ void createLastPlayersArray(int data[2], int differentHand){
             cursor++;
         }
     }
+    #ifdef DEBUG
     showLastArray(data);
+    #endif
 }
 
 void showLastArray(int data[2]){
@@ -664,8 +666,8 @@ int autoJanken(){
         }
     }
 
-    showWinnerArray();
     #ifdef DEBUG
+    showWinnerArray();
         printf("DEBUG: Com1: %d, Com2: %d\n", playersArray[1][1], playersArray[2][1]);
     #endif
 
@@ -697,5 +699,17 @@ void showOneWinner(){
 void showTwoWinner(){
     printf("*******************************************\n");
     printf("***              TWO WINNER             ***\n");
+    printf("*******************************************\n");
+}
+
+void showMessageVsComputer(){
+    printf("*******************************************\n");
+    printf("***           Player VS Computer        ***\n");
+    printf("*******************************************\n");
+}
+
+void showMessageComputerBattle(){
+    printf("*******************************************\n");
+    printf("***         Computer VS Computer        ***\n");
     printf("*******************************************\n");
 }
