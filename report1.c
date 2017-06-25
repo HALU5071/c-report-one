@@ -9,7 +9,7 @@ ATTENTION!!!
 #include <time.h>
 #include "MT.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define PLAYERCOUNT 3
 
@@ -38,8 +38,8 @@ int jankenTwoPeople(int player1, int player2, int data[3], int playerData[3][3])
 int jankenThreePeople(int data[3]);
 int checkWildCard(int handOne, int handTwo, int handThree);
 void showResult();
-int showHandFromPlayerCode(int code);
-int showWildCardFromPlayerCode(int code);
+int getHandFromPlayerCode(int code);
+int getWildCardFromPlayerCode(int code);
 void showPlayerArray();
 void updateWildCardOnPlayersArray();
 void showWinnerArray();
@@ -57,6 +57,9 @@ int searchDifferentHand(int data[3][3]);
 void createLastPlayersArray(int data[2], int differentHand);
 int determineJankenTwo(int data[2]);
 int manualJankenWithComputer(int comCode);
+void showLastArray(int data[2]);
+int postHandFromCode(int code, int hand);
+void initWildCard();
 
 // コンピュータ1, 2の手を格納するためのグローバル変数
 int comOne = 0;
@@ -96,12 +99,15 @@ int main(void){
     playersArray[2][0] = COMTWO;
 
     // ワイルドカードの使用を判定するためのフラグを格納する
-    playersArray[0][2] = WILDFALSE;
-    playersArray[1][2] = WILDFALSE;
-    playersArray[2][2] = WILDFALSE;
+    initWildCard();
+
+    int firstTimeFlag = 0;
 
     while(1){
 
+      if (firstTimeFlag == 0) {
+        initWildCard();
+      }
         printf("You throw >> ");
         // 入力された手を格納しておく変数 char型
         char yourHand = '\0';
@@ -178,6 +184,7 @@ int main(void){
             #endif
 
             determineJankenTwo(lastArray);
+            showResult();
 
 
         } else {
@@ -202,9 +209,13 @@ int main(void){
 
                 #ifdef DEBUG
                     printf("DEBUG: Diff: %d\n", diffHand);
+                    showWinnerArray();
                 #endif
 
                 createLastPlayersArray(lastArray, diffHand);
+                determineJankenTwo(lastArray);
+                showResult();
+                firstTimeFlag = 0;
 
             } else if (resultThree == TWOWINNER) {
                 showTwoWinner();
@@ -223,6 +234,9 @@ int main(void){
                 winnerArray[2] = diffHand;
                 createLastPlayersArray(lastArray, diffHand);
                 // ふたりじゃんけんの方針を決定します。
+                determineJankenTwo(lastArray);
+                showResult();
+                firstTimeFlag = 0;
 
                 #ifdef DEBUG
                     showWinnerArray();
@@ -232,13 +246,11 @@ int main(void){
                 printf("DEBUG: IllegalState\n");
             }
 
-            determineJankenTwo(lastArray);
             break;
         }
 
+        firstTimeFlag = 1;
     }
-
-    showResult();
     return (0);
 }
 
@@ -295,6 +307,14 @@ void createLastPlayersArray(int data[2], int differentHand){
             cursor++;
         }
     }
+    showLastArray(data);
+}
+
+void showLastArray(int data[2]){
+  int i;
+  for(i = 0; i < 2; i++){
+    printf("DEBUG: lastArray[%d]: %d\n", i, data[i]);
+  }
 }
 
 // 結果を表示します
@@ -445,7 +465,7 @@ int convertPlayerHandFromInput(char a){
 // つかっていれば、WILDFALSEを使い、generateJankenHandTo3(seed)を呼び出し手を生成します。
 // エラーコードは空白文字です。
 int generateJankenHand(int seed, int code){
-    int wildCardBoolean = showWildCardFromPlayerCode(code);
+    int wildCardBoolean = getWildCardFromPlayerCode(code);
 
     int hand = 0;
 
@@ -489,7 +509,7 @@ int generateJankenHandTo3(int seed){
 void updateWildCardOnPlayersArray(){
     int r;
     for(r = 0; r < PLAYERCOUNT; r++){
-        if (showHandFromPlayerCode(playersArray[r][0]) == 4) {
+        if (getHandFromPlayerCode(playersArray[r][0]) == 4) {
             playersArray[r][2] = WILDTRUE;
         }
     }
@@ -518,7 +538,7 @@ void showPlayerArray(){
     }
 }
 
-int showWildCardFromPlayerCode(int code){
+int getWildCardFromPlayerCode(int code){
     int wildCardBoolean;
     int i;
     for(i = 0; i < PLAYERCOUNT; i++){
@@ -532,7 +552,7 @@ int showWildCardFromPlayerCode(int code){
 }
 
 // プレイヤーコードを元に、その人の手を表示します
-int showHandFromPlayerCode(int code){
+int getHandFromPlayerCode(int code){
     int hand;
     int i;
     for(i = 0; i < PLAYERCOUNT; i++){
@@ -543,6 +563,13 @@ int showHandFromPlayerCode(int code){
     }
 
     return hand;
+}
+
+void initWildCard(){
+  int i;
+  for(i = 0; i < PLAYERCOUNT; i++){
+    playersArray[i][2] = WILDFALSE;
+  }
 }
 
 // プレイヤーの手にあるワイルドカードの枚数をチェックする
@@ -568,14 +595,21 @@ int checkWildCard(int handOne, int handTwo, int handThree){
 // 残りのプレイヤー二人のなかに、プレイヤー自身が含まれているときのじゃんけんをします。
 int manualJankenWithComputer(int comCode){
     int code = 0;
+    int* pointCode;
     code = comCode;
-    printf("%d\n", code);
+
+    #ifdef DEBUG
+      printf("DEBUG : %d\n", code);
+    #endif
 
     while (1) {
         printf("You throw >> ");
         char yourHand = '\0';
         scanf("%s", &yourHand);
         int numPlayerHand = convertPlayerHandFromInput(yourHand);
+
+        int hand = generateJankenHand(100, code);
+        postHandFromCode(code, hand);
 
         if (numPlayerHand == '\0') {
             continue;
@@ -595,6 +629,27 @@ int manualJankenWithComputer(int comCode){
     }
 
     return 1;
+}
+
+// 与えられたプレイヤーコードを元に、じゃんけんの手をplayersArrayに入力します
+// 成功時には 0 を、失敗時には 1 を返します。
+int postHandFromCode(int code, int hand){
+  if (code == PLAYER) {
+    playersArray[0][1] = hand;
+  } else if (code == COMONE) {
+    playersArray[1][1] = hand;
+  } else if (code == COMTWO) {
+    playersArray[2][1] = hand;
+  } else {
+    printf("IllegalState\n");
+    return 1;
+  }
+
+  if (getHandFromPlayerCode(code) == hand) {
+    return 0;
+  } else {
+    return 1;
+  }
 }
 
 // コンピュータ二人で行うじゃんけんを自動化するメソッドです。
